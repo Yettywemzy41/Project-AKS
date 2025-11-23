@@ -1,0 +1,69 @@
+graph TB
+    subgraph Azure_Cloud["☁️ Azure Cloud"]
+        style Azure_Cloud fill:#f5f9ff,stroke:#0078d4,stroke-width:2px
+
+        User(("👤 User"))
+        DNS["🌐 Azure DNS / Traffic Manager"]
+        
+        User --> DNS
+        DNS --> AppGW
+
+        subgraph VNET["🔒 VNET (10.0.0.0/16)"]
+            style VNET fill:#e6f2ff,stroke:#0078d4,stroke-dasharray: 5 5
+
+            subgraph Public_Subnet["Public Subnet"]
+                style Public_Subnet fill:#fff,stroke:#666
+                AppGW["🛡️ App Gateway (WAF) + AGIC"]
+            end
+
+            subgraph AKS_Subnet["AKS Subnet"]
+                style AKS_Subnet fill:#fff,stroke:#666
+                
+                subgraph AKS_Cluster["☸️ AKS Cluster"]
+                    style AKS_Cluster fill:#326ce5,stroke:#fff,color:#fff
+                    
+                    subgraph System_Pool["System Node Pool"]
+                        style System_Pool fill:#e1f5fe,stroke:#0277bd
+                        IngressCtrl["Ingress Controller"]
+                        CoreDNS["CoreDNS"]
+                        Metrics["Metrics Server"]
+                    end
+
+                    subgraph User_Pool["User Node Pool (General)"]
+                        style User_Pool fill:#e8f5e9,stroke:#2e7d32
+                        APIGW_Pod["API Gateway Pods"]
+                        Auth_Pod["Auth Service Pods"]
+                    end
+
+                    subgraph Spot_Pool["Spot Node Pool (Batch)"]
+                        style Spot_Pool fill:#fff3e0,stroke:#ef6c00
+                        Reports_Pod["Reports Service Pods"]
+                    end
+                end
+            end
+            
+            subgraph Data_Subnet["Private Link Subnet"]
+                style Data_Subnet fill:#fff,stroke:#666
+                SQL["🛢️ Azure SQL"]
+                Redis["⚡ Azure Redis"]
+            end
+        end
+
+        ACR["📦 Azure Container Registry"]
+        KV["🔑 Azure Key Vault"]
+        Monitor["📊 Azure Monitor / Log Analytics"]
+
+        AKS_Cluster -.-> ACR
+        AKS_Cluster -.-> KV
+        AKS_Cluster -.-> Monitor
+        
+        APIGW_Pod --> Auth_Pod
+        APIGW_Pod --> Reports_Pod
+        Auth_Pod --> SQL
+        Reports_Pod --> SQL
+        Reports_Pod --> Redis
+        AppGW --> IngressCtrl
+    end
+
+    classDef service fill:#fff,stroke:#333,stroke-width:1px;
+    class APIGW_Pod,Auth_Pod,Reports_Pod service;
