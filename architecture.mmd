@@ -1,4 +1,10 @@
 graph TB
+    subgraph DevOps["🚀 DevOps & Observability"]
+        style DevOps fill:#fff,stroke:#333,stroke-dasharray: 5 5
+        Git["📂 GitHub Repo"]
+        Actions["⚙️ GitHub Actions (CI)"]
+    end
+
     subgraph Azure_Cloud["☁️ Azure Cloud"]
         style Azure_Cloud fill:#f5f9ff,stroke:#0078d4,stroke-width:2px
 
@@ -27,6 +33,7 @@ graph TB
                         IngressCtrl["AGIC Controller"]
                         CoreDNS["CoreDNS"]
                         Metrics["Metrics Server"]
+                        ArgoCD["🐙 ArgoCD (GitOps)"]
                     end
 
                     subgraph User_Pool["Application Node Pool (User Workloads)"]
@@ -51,7 +58,7 @@ graph TB
 
         ACR["📦 Azure Container Registry"]
         KV["🔑 Azure Key Vault"]
-        Monitor["📊 Azure Monitor / Log Analytics"]
+        Monitor["📊 Azure Monitor / Prometheus"]
 
         AKS_Cluster -.-> ACR
         AKS_Cluster -.-> KV
@@ -63,6 +70,12 @@ graph TB
         Reports_Pod --> SQL
         Reports_Pod --> Redis
         AppGW --> IngressCtrl
+
+        %% DevOps Flows
+        Git --> Actions
+        Actions -- "Push Image" --> ACR
+        Git -. "Sync State" .-> ArgoCD
+        ArgoCD -. "Apply Manifests" .-> User_Pool
     end
 
     classDef service fill:#fff,stroke:#333,stroke-width:1px;
