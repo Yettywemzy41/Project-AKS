@@ -8,9 +8,9 @@ graph TB
         subgraph VNet ["Virtual Network (VNet)"]
             style VNet fill:#e1f5fe,stroke:#0072C6,stroke-dasharray: 5 5
 
-            subgraph Public_Subnet ["Public Subnet"]
-                style Public_Subnet fill:#ffffff,stroke:#333
-                ALB[("Azure Load Balancer")]
+            subgraph AppGW_Subnet ["App Gateway Subnet"]
+                style AppGW_Subnet fill:#ffffff,stroke:#333
+                AppGateway[("Azure Application Gateway (WAF)")]
             end
 
             subgraph AKS_Cluster ["AKS Cluster (Standard Tier)"]
@@ -18,7 +18,7 @@ graph TB
                 
                 subgraph System_Node_Pool ["System Node Pool"]
                     style System_Node_Pool fill:#ffffff,stroke:#333
-                    Ingress_Controller["NGINX Ingress Controller"]
+                    AGIC_Pod["AGIC Controller Pod"]
                     Cert_Manager["Cert Manager"]
                     Ext_DNS["External DNS"]
                     Otel_Col["OTel Collector"]
@@ -59,10 +59,12 @@ graph TB
     end
 
     %% Traffic Flow
-    User((User)) -->|HTTPS| ALB
-    ALB -->|Traffic| Ingress_Controller
-    Ingress_Controller -->|Route /api| API_Gateway
-    Ingress_Controller -->|Route /auth| Auth_Service
+    User((User)) -->|HTTPS| AppGateway
+    AppGateway -->|Route /api| API_Gateway
+    AppGateway -->|Route /auth| Auth_Service
+    
+    %% Control Plane
+    AGIC_Pod -.->|Configures| AppGateway
     
     %% Service Communication
     API_Gateway -->|gRPC/REST| Auth_Service
