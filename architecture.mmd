@@ -22,14 +22,14 @@ graph TB
                 subgraph AKS_Cluster["☸️ AKS Cluster"]
                     style AKS_Cluster fill:#326ce5,stroke:#fff,color:#fff
                     
-                    subgraph System_Pool["System Node Pool"]
+                    subgraph System_Pool["System Node Pool (Critical Addons)"]
                         style System_Pool fill:#e1f5fe,stroke:#0277bd
-                        IngressCtrl["Ingress Controller"]
+                        IngressCtrl["AGIC Controller"]
                         CoreDNS["CoreDNS"]
                         Metrics["Metrics Server"]
                     end
 
-                    subgraph User_Pool["User Node Pool (General)"]
+                    subgraph User_Pool["Application Node Pool (User Workloads)"]
                         style User_Pool fill:#e8f5e9,stroke:#2e7d32
                         APIGW_Pod["API Gateway Pods"]
                         Auth_Pod["Auth Service Pods"]
